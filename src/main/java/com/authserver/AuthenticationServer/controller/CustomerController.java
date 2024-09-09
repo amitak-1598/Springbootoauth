@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v2")
 public class CustomerController {
 
 	@Autowired
@@ -66,23 +66,7 @@ public class CustomerController {
 	@Autowired
 	private TokenStore tokenStore;
 
-	// Signup
-	@PostMapping("/auth/signup")
-	public ResponseEntity<Object> signup(@RequestBody Customer customer) {
-		try {
-			Customer customerFromDb = customerRepository.findByUsername(customer.getUsername());
-			if (customerFromDb != null) {
-				return ResponseHandler.generateResponse("UserName Already Exist", HttpStatus.BAD_REQUEST, null);
-			}
-			customer.setPassword(passwordEncoder.encode(customer.getPassword()));
-			System.out.println(customer);
-			customerRepository.save(customer);
-			return ResponseHandler.generateResponse("Customer created successfully", HttpStatus.CREATED, customer);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseHandler.generateResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR, null);
-		}
-	}
+	
 
 	// Get ALL user
 	@GetMapping("/user/all")
@@ -96,31 +80,7 @@ public class CustomerController {
 		}
 	}
 
-	// Login
-	@PostMapping("/auth/login")
-	public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
-		try {
-			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-					loginRequest.getUsername(), loginRequest.getPassword());
-
-			Authentication authentication = authenticationManager.authenticate(authenticationToken);
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-
-			OAuth2Request oAuth2Request = new OAuth2Request(null, "client_id", null, true,
-					new HashSet<>(Arrays.asList("read", "write")), null, null, null, null);
-			OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
-			
-
-			OAuth2AccessToken token = tokenServices.createAccessToken(oAuth2Authentication);
-
-
-			return ResponseHandler.generateResponse("Login successful", HttpStatus.OK, token);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseHandler.generateResponse("Invalid username or password", HttpStatus.UNAUTHORIZED, null);
-		}
-	}
-
+	
 	// Test
 	@GetMapping("/user/")
 	public ResponseEntity<Object> testAPI() {
@@ -134,77 +94,19 @@ public class CustomerController {
 		}
 	}
 
-	// Refresh
-	@PostMapping("/auth/refresh")
-	public ResponseEntity<Object> refresh(@RequestParam("refresh_token") String refreshToken) {
-		try {
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-			OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) authentication;
 
-			TokenRequest tokenRequest = new TokenRequest(new HashMap<>(),
-					oAuth2Authentication.getOAuth2Request().getClientId(),
-					oAuth2Authentication.getOAuth2Request().getScope(), "refresh_token");
+	
 
-			OAuth2AccessToken accessToken = tokenServices.refreshAccessToken(refreshToken, tokenRequest);
-			return ResponseHandler.generateResponse("Token refreshed successfully", HttpStatus.OK, accessToken);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseHandler.generateResponse("Invalid refresh token", HttpStatus.UNAUTHORIZED, null);
+	     // CurrentUser
+		@GetMapping("/current-user")
+		public String getLoggedInUser(Principal principal) {
+			return principal.getName();
 		}
-	}
-	
-	//RefreshSecond
-	@PostMapping("/auth/refresh2")
-    public ResponseEntity<Object> refreshSecondWay(@RequestParam("refresh_token") String refreshToken) {
-        try {
-          
-            String clientId = "client_id"; 
-            Set<String> scopes = new HashSet<>(Arrays.asList("read","write")); 
-
-            TokenRequest tokenRequest = new TokenRequest(new HashMap<>(), clientId, scopes, "refresh_token");
-
-            OAuth2AccessToken accessToken = tokenServices.refreshAccessToken(refreshToken, tokenRequest);
-            return ResponseHandler.generateResponse("Token refreshed successfully", HttpStatus.OK, accessToken);
-        } catch (InvalidTokenException e) {
-            return ResponseHandler.generateResponse("Invalid refresh token", HttpStatus.UNAUTHORIZED, null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseHandler.generateResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, null);
-        }
-    }
+		
+   
 	
 	
-    // Logout
-	@PostMapping("/auth/logout")
-	public ResponseEntity<Object> logout(HttpServletRequest request) {
-		try {
-			
-			new SecurityContextLogoutHandler().logout(request, null, null);
-
-			
-			String authorizationHeader = request.getHeader("Authorization");
-			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-				String accessToken = authorizationHeader.substring(7);			
-				OAuth2AccessToken oAuth2AccessToken = tokenStore.readAccessToken(accessToken);
-				if (oAuth2AccessToken != null) {
-					tokenStore.removeAccessToken(oAuth2AccessToken);
-				}
-			}
-
-			return ResponseHandler.generateResponse("Logout successful", HttpStatus.OK, null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseHandler.generateResponse("Error occurred during logout", HttpStatus.INTERNAL_SERVER_ERROR,
-					null);
-		}
-	}
 	
-	
-	// CurrentUser
-	@GetMapping("/current-user")
-	public String getLoggedInUser(Principal principal) {
-		return principal.getName();
-	}
 	
 
 
