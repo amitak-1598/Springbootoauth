@@ -59,6 +59,18 @@ public class AuthenticationController {
 	@Autowired
 	private TokenStore tokenStore;
 
+	@GetMapping("/user/all")
+	public ResponseEntity<Object> getAllUsers() {
+		try {
+			List<Customer> customers = customerRepository.findAll();
+			return ResponseHandler.generateResponse("Users Fetched Successfully", HttpStatus.OK, customers);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseHandler.generateResponse("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR, null);
+		}
+	}
+	
+	
 	// Signup
 	@PostMapping("/auth/signup")
 	public ResponseEntity<Object> signup(@RequestBody Customer customer) {
