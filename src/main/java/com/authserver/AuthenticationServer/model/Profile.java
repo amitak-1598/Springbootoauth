@@ -16,7 +16,7 @@ public class Profile {
 
     private String firstName;
     private String lastName;
-    private String username;
+
 
     public Integer getId() {
         return id;
@@ -26,13 +26,7 @@ public class Profile {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
+  
 
     
 
@@ -54,7 +48,7 @@ public class Profile {
 
 	@Override
 	public String toString() {
-		return "Customer [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", username=" + username + "]";
+		return "Customer [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + "]";
 	}
     
     
