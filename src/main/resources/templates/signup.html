@@ -4,22 +4,67 @@
     <title>Sign Up</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <style>
-        .signup-container {
-            max-width: 400px;
-            margin: auto;
-            padding: 2rem;
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
         }
+
+        .signup-container {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         .signup-form {
-            border: 1px solid #ddd;
-            padding: 1.5rem;
-            border-radius: 8px;
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .signup-form img.logo-img {
+            max-width: 160px;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .form-group {
+            text-align: left;
+        }
+
+        .btn-primary {
+            width: 100%;
+        }
+
+        .btn-link {
+            display: block;
+            margin-top: 1rem;
+            color: #007bff;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <div class="signup-container">
-        <h2>Sign Up</h2>
         <div class="signup-form">
+            <!-- Logo Inside Form -->
+            <img src="/images/logo.png" th:src="@{/images/logo.png}" alt="Logo" class="logo-img">
+
+            <h2>Sign Up</h2>
             <form id="signupForm">
                 <div class="form-group">
                     <label for="username">Username</label>
@@ -34,6 +79,7 @@
             </form>
         </div>
     </div>
+
     <script>
         document.getElementById('signupForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -51,13 +97,15 @@
             .then(data => {
                 if (data.status === 201) {
                     alert('Sign Up successful');
-                    // Handle sign-up success (e.g., redirect or show message)
+                    // Optionally redirect to login page:
+                    window.location.href = '/auth/login';
                 } else {
                     alert('Sign Up failed: ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
+                alert('Sign Up failed: ' + error.message);
             });
         });
     </script>
